@@ -189,3 +189,190 @@
     - 대표적으로 L1(Lasso)
 - Bayesian Point of View (정규화를 Bayesian 관점에서 해석하는 방법)
     - 정규화 = 파라미터에 대한 prior(사전 신념)를 추가하는 Bayesian 방식과 동일.
+ 
+## 5. NN
+### 1) Forward Propagation
+
+- 입력 → 가중치 연산 → 비선형 활성화 → 다음 레이어 전달(모델이 prediction을 만드는 과정)
+- 목적:
+    - 입력 데이터를 레이어를 거쳐 변환하여 **output(예측)** 생성
+    - Backpropagation을 위해 중간 값(z, a)을 모두 저장(gradient 계산 용도)
+- 신경망의 각 레이어는 아래 연산을 수행
+    
+    **z = W·x + b**
+    
+    **a = activation(z)**
+    
+- Activation을 통과해야 **비선형성 확보 → XOR 같은 문제 해결 가능**
+- Forward는 계산 그래프를 따라 한 방향으로 흐름
+
+### 2) Backward Propagation
+
+- 모델이 한 번 예측한 후 → loss 계산
+- 그 뒤 loss를 줄이기 위해 **각 레이어의 gradient를 계산**하고, 가중치를 업데이트하는 과정.
+- 목적: Loss를 줄이기 위해 **각 weight가 얼마나 바뀌어야 하는지**를 자동으로 계산하는 알고리즘
+- 단계:
+    - (1) **Loss 미분 (∂L/∂output):** 예측값이 얼마나 틀렸는지를 계산
+    - (2) **Chain rule 기반 gradient 전파**
+        - 출력 → 마지막 레이어 → 중간층 → 입력 방향으로 거꾸로 미분
+        - 연쇄 법칙(Chain Rule)을 적용하여 미분값 전달
+    - (3) **Weight 업데이트**
+        - Gradient Descent: **W := W - η * ∂L/∂W**
+
+### 3) RELU
+
+- 딥러닝에서 가장 널리 쓰이는 activation function.
+- a = max(0, z)
+- 중요한 이유
+    - Sigmoid / Tanh의 문제
+        - 깊은 신경망에서 **Vanishing Gradient** 발생
+        - gradient가 0에 가까워짐(for sigmoid: 0~1 구간)
+    - ReLU의 장점
+        - gradient가 1 또는 0 → 사라지지 않음
+        - 깊은 네트워크에서도 잘 학습됨
+        - 계산 매우 빠름 (max 연산)
+    - **ReLU 사용 시 주의점**
+        - Dead ReLU 문제: 입력이 항상 0 이하이면 gradient = 0 → neuron이 죽음 ⇒ Leaky ReLU 등으로 해결 가능
+
+### 4) **신경망 설계 요소**
+
+- **Weight Initialization (가중치 초기화)**
+    - **왜 중요한가?**
+        - Vanishing & Exploding Gradient
+            - 너무 큰 초기값 → gradient 폭발
+            - 너무 작은 초기값 → gradient 소실
+            - ⇒ 역전파(backpropagation) 과정에서 gradient가 레이어를 거치며 점점 작아지거나 커짐
+        - 잘못 초기화하면 학습이 시작도 안 됨
+    - **대표 방식**
+        - **Xavier initialization (tanh 계열)** : 각 레이어의 출력 분포가 입력 분포와 비슷하도록 초기 가중치를 조절
+        - He initialization (ReLU 계열)
+        
+        → 활성화 함수와 맞춰야 “분산이 잘 유지됨(variance-preserving)”
+        
+- **Dropout:** 학습 시 무작위로 뉴런을 일정 비율 끄는 기술.
+    - **목적**
+        - 신경망이 특정 뉴런이나 특징에만 의존하는 현상(Overfitting) 방지
+        - 네트워크가 특정 weight에 과도하게 의존하는 것을 막음
+        - 결국 **앙상블 효과**를 만듦
+- **Ensemble:** 여러 모델을 결합해서 더 좋은 성능.
+    - Dropout 자체가 mini ensemble 효과
+    - 서로 다른 초기값으로 모델 여러 개 학습 → 평균 / 투표
+- Optimizer(최적화)
+    - SGD
+    - Adam
+- **Network Architecture 설계 전략**
+    - **(1) Fast Forward**
+        - Residual connection (Skip connection)
+        - Deep residual network(ResNet)의 핵심
+        - "입력 x를 몇 개 레이어 뒤로 바로 전달"
+        
+        → Vanishing Gradient 해결
+        
+        → 깊은 네트워크 가능
+        
+    - **(2) Split & Merge**
+        - Inception 구조 (GoogLeNet)
+        - 여러 가지 filter(1x1, 3x3, 5x5)를 병렬로 적용해 feature 다양성 확보
+    - **(3) RNN (Recurrent Neural Network)**
+        - 시계열/자연어 처리 등을 위해 등장한 구조.
+        - 특징
+            - 이전 시점 hidden을 다음 입력과 함께 사용
+            - sequence 데이터 처리 가능
+        - 단점
+            - Gradient vanishing 높음
+                
+                → LSTM, GRU 개발됨
+                
+
+
+## 6. ConvNet (Convolutional Neural Network)
+
+### 1) ConvNet의 기본 흐름
+
+CNN은 주로 이미지 데이터를 다룰 때 사용, 일반적인 Fully Connected Network(FNN)와 달리 **공간적 구조(spatial structure)**를 활용
+
+- **입력 이미지** → **Convolution + ReLU** → **Pooling** → 반복 → **Fully Connected Layer** → **출력**
+
+이 흐름을 통해 **이미지 특징(feature)**를 단계적으로 추출하고 최종적으로 분류(classification)나 예측(prediction)을 수행
+
+### 2) Convolution Layer (합성곱 레이어)
+
+- **목적**: 이미지에서 특징(feature) 추출
+- **핵심 개념**
+    - 필터(Filter, 커널, Kernel): 작은 행렬, 예: 3×3, 5×5
+    - **Stride**: 필터 이동 간격
+    - **Padding**: 경계 처리, SAME/VALID
+    - CNN의 핵심은 **지역적 패턴 인식(Local pattern)**:
+        - 모서리(edge)
+        - 선(line)
+        - 숫자 형태 패턴(feature)
+- **출력 크기 계산**:
+Output size = (N - F) / stride + 1
+
+- NNN: 입력 크기
+- FFF: 필터 크기
+- **활용 예**: edge detection, pattern extraction 등
+
+### 3) ReLU (Rectified Linear Unit)
+
+- **목적**: 비선형성 부여, 학습 속도 향상
+- **정의**:
+    f(x)=max⁡(0,x)
+
+    
+- Convolution 후 적용: **conv → ReLU → conv → ReLU → …**
+
+### 4) Pooling Layer (Subsampling)
+
+- **목적**: 차원 축소, 연산량 감소, translation invariance 확보
+- **주요 방식**
+    - **Max pooling**: 영역 내 최대값
+    - **Average pooling**: 영역 내 평균값
+- 보통 **2×2 영역, stride=2**를 많이 사용
+
+### 5) Flatten + Fully Connected Layer
+
+- CNN 마지막 단계에서 이미지 특징을 **1차원 벡터로 펼친 후** 연결
+    - CNN은 특징을 추출하고 Flatten 이후 FC Layer에서 분류(classification)를 수행함
+- **출력**: 분류 문제의 경우 softmax, 회귀 문제
+
+### 6) Full Network 구성 예시
+
+```
+conv-relu → conv-relu → pool
+conv-relu → conv-relu → pool
+flatten → fully connected → softmax
+```
+
+- **LeNet-5**: 초기 CNN, 손글씨 숫자 MNIST 분류용
+- **AlexNet**: 깊고 큰 CNN, ImageNet 대회 우승
+- **GoogLeNet (Inception)**: 병렬 필터 사용, 연산 최적화
+- **ResNet**: residual connection, 매우 깊은 네트워크에서도 학습 가능
+
+## 7. RNN(Recurrent Neural Network)
+
+- 순차적 데이터(sequence data)를 처리하는 신경망.
+    - 입력의 순서와 이전 정보를 고려하여 출력 예측.
+    - Hidden state: 과거 정보를 기억하여 다음 단계에 전달.
+- 응용 예시
+    - **Vanilla RNN**: 가장 기본 구조. 작은 시퀀스나 간단한 패턴에 사용.
+    - **Image Captioning**: 이미지 특징을 추출한 후 시퀀스 단어를 생성.
+    - **Sentiment Classification**: 문장의 감정을 순서대로 읽어 최종 감정을 예측.
+    - **Machine Translation**: 입력 문장을 순서대로 처리하여 다른 언어 문장 생성.
+    - **Video Classification**: 프레임별 특징을 순서대로 처리해 동영상 분류.
+- Long Sequence RNN
+    - 시퀀스가 길어지면 **Vanishing Gradient** 문제가 발생해 장기 의존성(long-term dependency)을 학습하기 어려움
+    - 해결방법
+        - **LSTM(Long Short-Term Memory)**
+            - Gate 구조: Forget, Input, Output
+            - Cell state 유지 → 장기 기억 가능.
+        - **GRU(Gated Recurrent Unit)**
+- Stacked RNN + Softmax Layer
+    - RNN을 층층이 쌓아 **Stacked RNN**을 만들 수 있음 → 더 복잡한 시퀀스 패턴 학습 가능.
+    - 마지막 출력층에 Softmax를 붙여 분류 문제 처리.
+- Dynamic RNN
+    - 입력 시퀀스 길이가 가변적일 때 사용.
+    - TensorFlow 같은 프레임워크에서는 `dynamic_rnn`으로 처리하여 메모리와 계산 효율을 높임.
+- RNN with Time Series Data
+    - 주가, 날씨, 센서 데이터 등 **연속적 시간 데이터** 분석에 RNN이 널리 사용됨.
+    - 과거 데이터를 기반으로 미래를 예측할 수 있음.
