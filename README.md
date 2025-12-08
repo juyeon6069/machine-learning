@@ -1,4 +1,15 @@
-## 0: Math_prelim
+## Table of contents
+- [Math_prelim](#0-math_prelim)
+- [MLE](#1-maximum-likelihood-estimation)
+- [Linear model](#2-linear-model)
+- [non-Linear model](#3-non-linear-model)
+- [Model Selection](#4-model-selection)
+- [NN](#5-nn)
+- [ConvNet](#6-convnet-convolutional-neural-network)
+- [RNN](#7-rnnrecurrent-neural-network)
+
+  
+## 0. Math_prelim
 
 - Tensor: 딥러닝 연산을 위한 숫자의 다차원 컨테이너
     - **왜 머신러닝에서 Tensor를 쓰나?**
@@ -37,7 +48,7 @@
     - Maximize/minimize an objective function(최적의 해를 최소화/최대화로 찾기 위한 함수) with respect to a set of constraints
     - Gradient descent: 1차 반복 최적화 알고리즘
 
-## 1: Maximum Likelihood Estimation
+## 1. Maximum Likelihood Estimation
 
 ### 1) Maximum Likelihood:
 
@@ -66,7 +77,7 @@
 | MLE | 데이터만 보고 파라미터 추정 | 현재 데이터만 믿음 |
 | Bayesian | prior + 데이터로 추정 | 기존 믿음 + 데이터 둘 다 반영하자 |
 
-## 2. 선형모델: Regression
+## 2. Linear model
 
 ### 1) Linear Regression
 
@@ -87,7 +98,7 @@
     4. optimizer로 θ 업데이트
     5. bias-variance 고려해서 규제(MAP) 적용
 
-## 3. 비선형모델
+## 3. non Linear model
 
 ### 1) KNN
 
@@ -289,7 +300,7 @@
 
 ### 1) ConvNet의 기본 흐름
 
-CNN은 주로 이미지 데이터를 다룰 때 사용, 일반적인 Fully Connected Network(FNN)와 달리 **공간적 구조(spatial structure)**를 활용
+CNN은 주로 이미지 데이터를 다룰 때 사용, 일반적인 Fully Connected Network(FNN)와 달리 공간적 구조(spatial structure)를 활용
 
 - **입력 이미지** → **Convolution + ReLU** → **Pooling** → 반복 → **Fully Connected Layer** → **출력**
 
