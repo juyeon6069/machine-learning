@@ -1,4 +1,15 @@
 .ipynb_checkpoints/
-.ipynb_checkpoints/
+
 tb/
 logs/
+
+cnn_train/
+cnn_valid/
+train/
+valid/
+
+*.keras
+*.jpg
+*.mat
+*.pkl
+*.csv
